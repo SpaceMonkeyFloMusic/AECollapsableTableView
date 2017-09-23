@@ -21,6 +21,10 @@ IB_DESIGNABLE
  */
 @property (nonatomic,strong) NSDictionary* initialCollapsedStatus;
 
+/** Returns expanded sections.
+ */
+- (NSMutableArray *)expandedSections;
+
 /** Returns YES if the specified section is expanded. */
 - (BOOL)isExpandedSection:(NSInteger)section;
 
