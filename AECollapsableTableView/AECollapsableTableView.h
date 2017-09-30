@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+typedef void (^AnimationCompletion)(BOOL finished);
+
 IB_DESIGNABLE
 @interface AECollapsableTableView : UITableView
 @property IBInspectable (nonatomic,assign) BOOL initialCollapsedAll;
@@ -28,9 +30,15 @@ IB_DESIGNABLE
 /** Returns YES if the specified section is expanded. */
 - (BOOL)isExpandedSection:(NSInteger)section;
 
+- (BOOL)hasExpandedSection;
+
 /** Collapses all expanded sections.
  */
 - (void)collapseAllSections;
+
+/**  Collapses all expanded sections with a completion block
+  */
+- (void)collapseAllSectionsWithCompletion:(AnimationCompletion)complete;
 
 /** Expand all collapsed sections.
  */

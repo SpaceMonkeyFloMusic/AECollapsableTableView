@@ -16,25 +16,6 @@
 
 @implementation AECollapsableTableView
 
-#pragma mark - Constructors
-/*
--(instancetype)initWithFrame:(CGRect)frame{
-    self = [super initWithFrame:frame];
-    if (self) {
-        [self commonInit];
-    }
-    return self;
-}
-
-- (instancetype)initWithCoder:(NSCoder *)aDecoder {
-    self = [super initWithCoder:aDecoder];
-    if (self) {
-        [self commonInit];
-    }
-    return self;
-}
-//*/
-
 #pragma mark - Public Methods
 - (NSMutableArray *)expandedSections {
     if (!_expandedSections) {
@@ -57,11 +38,13 @@
     return _expandedSections;
 }
 
-
 - (BOOL)isExpandedSection:(NSInteger)section {
     return [self.expandedSections[section] boolValue];
 }
 
+- (BOOL)hasExpandedSection {
+    return [self.expandedSections containsObject:@(1)];
+}
 
 - (void)collapseAllSections {
     NSArray* expandedSectionIndexPaths = [self expandedSectionIndexPaths];
@@ -84,12 +67,51 @@
         [self reloadSections:indexSet withRowAnimation:UITableViewRowAnimationNone];
         
         [self endUpdates];
-        
-        
     }
 }
 
--(void)expandAllSections{
+- (void)collapseAllSectionsWithCompletion:(AnimationCompletion)complete {
+    NSArray* expandedSectionIndexPaths = [self expandedSectionIndexPaths];
+    NSArray* itemsNeedToBeCollapsed = [self indexPathsForSectionIndexPaths:expandedSectionIndexPaths];
+    
+    if(expandedSectionIndexPaths.count > 0){
+        //1.row changes
+        [CATransaction begin];
+        [self beginUpdates];
+        
+        [CATransaction setCompletionBlock: ^{
+            complete(YES);
+        }];
+        
+        //a. refect changes in model
+        [self updateSectionsForSectionIndexPaths:expandedSectionIndexPaths asExpanded:NO];
+        
+        //b. delete roes animation
+        [self deleteRowsAtIndexPaths:itemsNeedToBeCollapsed withRowAnimation:UITableViewRowAnimationAutomatic];
+        
+        //c.reload affected sections
+        NSMutableIndexSet* indexSet = [[NSMutableIndexSet alloc] init];
+        for(NSIndexPath* sectionIndexPath in expandedSectionIndexPaths){
+            [indexSet addIndex:sectionIndexPath.section];
+        }
+        [self reloadSections:indexSet withRowAnimation:UITableViewRowAnimationNone];
+        
+        [self endUpdates];
+        [CATransaction commit];
+    }
+    
+    /*[CATransaction begin];
+    [tableView beginUpdates];
+    [CATransaction setCompletionBlock: ^{
+        // Code to be executed upon completion
+    }];
+    [tableView insertRowsAtIndexPaths: indexPaths
+                     withRowAnimation: UITableViewRowAnimationAutomatic];
+    [tableView endUpdates];
+    [CATransaction commit];*/
+}
+
+- (void)expandAllSections{
     NSArray* collapsedSectionIndexPaths = [self collapsedSectionIndexPaths];
     NSArray* itemsNeedToBeExpanded = [self indexPathsForSectionIndexPaths:collapsedSectionIndexPaths];
     
@@ -118,7 +140,7 @@
     }
 }
 
--(void)toggleCollapsableSection:(NSInteger)section{
+- (void)toggleCollapsableSection:(NSInteger)section{
     
     BOOL willOpen = ![self.expandedSections[section] boolValue];
     NSArray* indexPaths = [self indexPathsForSection:section];
@@ -221,8 +243,7 @@
     return [sectionIndexPaths copy];
 }
 
-
--(NSArray*)collapsedSectionIndexPaths{
+- (NSArray*)collapsedSectionIndexPaths{
     NSMutableArray* sectionIndexPaths = [NSMutableArray array];
     
     for (NSInteger i = 0; i < self.numberOfSections; i++) {
@@ -255,7 +276,6 @@
 }
 
 
-
 #pragma mark - Override Methods
 - (id<UITableViewDataSource>)dataSource {
     return [super dataSource];
@@ -283,7 +303,6 @@
     return [self.myDataSource respondsToSelector:@selector(numberOfSectionsInTableView:)]?[self.myDataSource numberOfSectionsInTableView:tableView]:0;
 }
 
-
 -(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     return [self.myDataSource respondsToSelector:@selector(tableView:cellForRowAtIndexPath:)]?[self.myDataSource tableView:tableView cellForRowAtIndexPath:indexPath]:[[UITableViewCell alloc] initWithFrame:CGRectZero];
 }
@@ -293,7 +312,6 @@
 - (nullable NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section{
     return [self.myDataSource respondsToSelector:@selector(tableView:titleForHeaderInSection:)]?[self.myDataSource tableView:tableView titleForHeaderInSection:section]:nil;
 }
-
 
 - (nullable NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section{
     return [self.myDataSource respondsToSelector:@selector(tableView:titleForFooterInSection:)]?[self.myDataSource tableView:tableView titleForFooterInSection:section]:nil;
