@@ -57,7 +57,7 @@
         [self updateSectionsForSectionIndexPaths:expandedSectionIndexPaths asExpanded:NO];
         
         //b. delete roes animation
-        [self deleteRowsAtIndexPaths:itemsNeedToBeCollapsed withRowAnimation:UITableViewRowAnimationAutomatic];
+        [self deleteRowsAtIndexPaths:itemsNeedToBeCollapsed withRowAnimation:UITableViewRowAnimationTop];
         
         //c.reload affected sections
         NSMutableIndexSet* indexSet = [[NSMutableIndexSet alloc] init];
