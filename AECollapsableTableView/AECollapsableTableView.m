@@ -94,7 +94,7 @@
         for(NSIndexPath* sectionIndexPath in expandedSectionIndexPaths){
             [indexSet addIndex:sectionIndexPath.section];
         }
-        [self reloadSections:indexSet withRowAnimation:UITableViewRowAnimationNone];
+        [self reloadSections:indexSet withRowAnimation:UITableViewRowAnimationAutomatic];
         
         [self endUpdates];
         [CATransaction commit];
@@ -166,7 +166,7 @@
     //[self updateExpandedSectionsForSectionIndexPaths:expandedSectionIndexPaths];
     self.expandedSections[section] = @(willOpen);
     
-    [self reloadSections:[NSIndexSet indexSetWithIndex:section] withRowAnimation:UITableViewRowAnimationFade];
+    [self reloadSections:[NSIndexSet indexSetWithIndex:section] withRowAnimation:UITableViewRowAnimationAutomatic];
     [self endUpdates];
     
     
